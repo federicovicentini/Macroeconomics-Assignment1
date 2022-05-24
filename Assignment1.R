@@ -62,6 +62,9 @@ toc <- get_eurostat_toc()
 library(knitr)
 kable(tail(toc))
 
+library(xts)
+library(ecb)
+
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
 id <- search_eurostat("Modal split of passenger transport",
@@ -71,6 +74,9 @@ id <- search_eurostat("Modal split of passenger transport",
 dat <- get_eurostat(id, time_format = "num")
 
 kable(head(dat))
+
+datl <- label_eurostat(dat)
+kable(head(datl))
 
 label_eurostat_vars(names(datl))
 
@@ -84,8 +90,9 @@ str(namq_10_gdp)
 # extract Spain GDP data
 nimacountries=c("ES","IT")
 nimaeu=c("B1GQ","P3_S13","P31_S14_S15","P52","P6","P7")
+colname=c("GDP","na","na","na","na","na")
 
-dataeu=matrix()
+dataeu=matrix(NA,89,length(nimacountries)*length(nimaeu))
 
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
@@ -97,7 +104,8 @@ for (i in 1:length(nimacountries)) {
       filter(na_item == nimaeu[s]) 
     newdata$time<-convert_dates(newdata$time)
     newdataxts<-xts(newdata$values,newdata$time)
-    dataeu[i,s]=newdataxts
+    dataeu[,s]=newdataxts
+    names(dataeu)[s]=colname[s]
   }
   
 }
