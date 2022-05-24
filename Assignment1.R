@@ -87,13 +87,17 @@ namq_10_gdp <- get_eurostat("namq_10_gdp",
 
 str(namq_10_gdp)
 
-# extract Spain GDP data
-nimacountries=c("ES","IT")
-nimaeu=c("B1GQ","P3_S13","P31_S14_S15","P52","P6","P7")
-colname=c("GDP","na","na","na","na","na")
+
+nimacountries=c("ES","FR")
+nimaeu=c("B1GQ","P31_S14_S15","P3_S13","P51G","P52","P53","P6","P7")
+colname=c("GDP","C","G","I","inv","saldo","X","IM",
+          "GDPb","Cb","Gb","Ib","invb","saldob","Xb","IMb")
+
 
 dataeu=matrix(NA,89,length(nimacountries)*length(nimaeu))
+colnames(dataeu)=colname
 
+z=length(colname)/length(nimacountries)
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata<-namq_10_gdp %>% 
@@ -104,42 +108,30 @@ for (i in 1:length(nimacountries)) {
       filter(na_item == nimaeu[s]) 
     newdata$time<-convert_dates(newdata$time)
     newdataxts<-xts(newdata$values,newdata$time)
-    dataeu[,s]=newdataxts
-    names(dataeu)[s]=colname[s]
+    dataeu[,(s+(z*(i-1)))]=newdataxts
   }
-  
 }
 
-GDPES<-namq_10_gdp %>% 
-  filter(geo == 'ES') %>% 
-  filter(time >= '2000-01-01') %>% 
-  filter(unit == 'CP_MEUR') %>% 
-  filter(s_adj == 'SCA') %>% 
-  filter(na_item == 'B1GQ') 
+head(newdata$time)
 
-str(GDPES)
+dataeu<-xts(dataeu,rev(newdata$time))
 
-GDPES$time<-convert_dates(GDPES$time)
-GDPESxts<-xts(GDPES$values,GDPES$time)
-str(GDPESxts)
-tail(GDPESxts)
+sums=c()
+gdp=c()
+for (i in 1:nrow(dataeu)) {
+  sums[i]=sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
+  gdp[i]=dataeu[i,1]
+}
 
+dataeu[,-c(1,z:length(colname))]
 
+sums
+gdp
+plot(sums, col="green", type="l")
+lines(gdp, col="red", type="l")
+lines(sums-gdp)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+plot(sums-gdp)
 
 
 
