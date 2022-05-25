@@ -3,7 +3,6 @@
 
 #Macroeconomics - Assignment no.1
 
-
 #################
 #####POINT 1#####
 #################
@@ -24,8 +23,6 @@ for (i in 1:length(nipa)) {
   getSymbols(nipa[i],src='FRED')
 }
 
-
-
 plot(GDP==EXPGS-IMPGS+PCEC+GPDI+GCE)
 GDP==EXPGS-IMPGS+PCEC+GPDI+GCE
 
@@ -45,11 +42,11 @@ for (i in 1:length(nipa)) {
 #eudataes=eudata[eudata$geo=="ES"]
 
 
-
-
+rm(list=ls())
+graphics.off()
 
 options(digits=4)
-
+#install packages
 packages <- c("tidyverse","rsdmx","eurostat","tbl2xts","tidyquant")
 new.packages <- packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -73,14 +70,14 @@ id <- search_eurostat("Modal split of passenger transport",
 # download data
 dat <- get_eurostat(id, time_format = "num")
 
-kable(head(dat))
+kable(head(dat)) #\c
 
-datl <- label_eurostat(dat)
+datl <- label_eurostat(dat) 
 kable(head(datl))
 
 label_eurostat_vars(names(datl))
 
-
+#\c
 # GDP download
 namq_10_gdp <- get_eurostat("namq_10_gdp", 
                             stringsAsFactors = FALSE)
@@ -88,7 +85,7 @@ namq_10_gdp <- get_eurostat("namq_10_gdp",
 str(namq_10_gdp)
 
 
-nimacountries=c("ES","FR")
+nimacountries=c("ES","FR") # list of countries 
 nimaeu=c("B1GQ","P31_S14_S15","P3_S13","P51G","P52","P53","P6","P7")
 colname=c("GDP","C","G","I","inv","saldo","X","IM",
           "GDPb","Cb","Gb","Ib","invb","saldob","Xb","IMb")
@@ -97,7 +94,7 @@ colname=c("GDP","C","G","I","inv","saldo","X","IM",
 dataeu=matrix(NA,89,length(nimacountries)*length(nimaeu))
 colnames(dataeu)=colname
 
-z=length(colname)/length(nimacountries)
+z=length(colname)/length(nimacountries) 
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata<-namq_10_gdp %>% 
@@ -112,9 +109,6 @@ for (i in 1:length(nimacountries)) {
   }
 }
 
-dataeu[,z]=dataeu[,z]*(-1)
-dataeu[,length(colname)]=dataeu[,length(colname)]*(-1)
-
 head(newdata$time)
 
 dataeu<-xts(dataeu,rev(newdata$time))
@@ -122,12 +116,9 @@ dataeu<-xts(dataeu,rev(newdata$time))
 sums=c()
 gdp=c()
 for (i in 1:nrow(dataeu)) {
-  sums[i]=sum(dataeu[i,-c(1,(z+1):length(colname))])
+  sums[i]=sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
   gdp[i]=dataeu[i,1]
 }
-
-
-sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
 
 dataeu[,-c(1,z:length(colname))]
 
@@ -135,27 +126,6 @@ sums
 gdp
 plot(sums, col="green", type="l")
 lines(gdp, col="red", type="l")
+lines(sums-gdp)
 
-plot(sums-gdp)
-
-sums2=c()
-gdp2=c()
-for (i in 1:nrow(dataeu)) {
-  sums2[i]=sum(dataeu[i,-c(1:(z+1))])
-  gdp2[i]=dataeu[i,(z+1)]
-}
-
-sum(dataeu[1,-c(1:(z+1))])-dataeu[1,length(colname)]
-
-dataeu[i,(z+1)]
-
-dataeu[1,-c(1:(z+1),length(colname))]
-
-plot(sums2, col="green", type="l")
-lines(gdp2, col="red", type="l")
-plot(sums2-gdp2)
-
-
-
-
-
+plot(sums-gdp) #plot the residual to check if Y=C+G+I
