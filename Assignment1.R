@@ -23,30 +23,14 @@ for (i in 1:length(nipa)) {
   getSymbols(nipa[i],src='FRED')
 }
 
-plot(GDP==EXPGS-IMPGS+PCEC+GPDI+GCE)
-GDP==EXPGS-IMPGS+PCEC+GPDI+GCE
-
+#Plot residuals from NIPA equation
 ((EXPGS-IMPGS+PCEC+GPDI+GCE)-GDP)^2
-
 plot(((EXPGS-IMPGS+PCEC+GPDI+GCE)-GDP)^2)
 
-toc <- get_eurostat_toc()
 
-nipaeu=c("t_nama_10_ma")
-for (i in 1:length(nipa)) {
-  get_eurostat(nipaeu[i])
-}
+# GET THE OTHER TWO COUNTRIES FROM EUROSTAT DATABASE
 
-#eudata=get_eurostat("namq_10_gdp"))
-#eudata=
-#eudataes=eudata[eudata$geo=="ES"]
-
-
-rm(list=ls())
-graphics.off()
-
-
-#install packages
+# Install packages
 packages <- c("tidyverse","rsdmx","eurostat","tbl2xts","tidyquant","BCDating")
 new.packages <- packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -64,37 +48,29 @@ library(ecb)
 
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
-id <- search_eurostat("Modal split of passenger transport",
-                      type = "table")$code[1]
 
-# download data
-dat <- get_eurostat(id, time_format = "num")
-
-kable(head(dat)) #\c
-
-datl <- label_eurostat(dat) 
-kable(head(datl))
-
-label_eurostat_vars(names(datl))
-
-#\c
 # GDP download
 namq_10_gdp <- get_eurostat("namq_10_gdp", 
                             stringsAsFactors = FALSE)
 
-str(namq_10_gdp)
+# Create vector with list of countries
+nimacountries=c("ES","FR")
 
-
-nimacountries=c("ES","FR") # list of countries 
+# Create a vector with codes for NIMA aggregates
 nimaeu=c("B1GQ","P31_S14_S15","P3_S13","P51G","P52","P53","P6","P7")
+
+# Create a vector with names for columns in matrix dataeu
 colname=c("GDP","C","G","I","inv","saldo","X","IM",
           "GDPb","Cb","Gb","Ib","invb","saldob","Xb","IMb")
 
-
+# Create matrix dataeu to fill with data from the 2 countries
 dataeu=matrix(NA,89,length(nimacountries)*length(nimaeu))
 colnames(dataeu)=colname
 
+# Set z to partition columns
 z=length(colname)/length(nimacountries) 
+
+# For cycle to fill dataeu with data from the countries
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata<-namq_10_gdp %>% 
@@ -109,24 +85,50 @@ for (i in 1:length(nimacountries)) {
   }
 }
 
-head(newdata$time)
+#Change Imports from positive to negative in both countries
+dataeu[,z]=dataeu[,z]*(-1)
+dataeu[,length(colname)]=dataeu[,length(colname)]*(-1)
 
+#Convert dataeu to xts format
 dataeu<-xts(dataeu,rev(newdata$time))
 
+#Check NIMA identity for country 1
 sums=c()
 gdp=c()
 for (i in 1:nrow(dataeu)) {
-  sums[i]=sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
+  sums[i]=sum(dataeu[i,-c(1,(z+1):length(colname))])
   gdp[i]=dataeu[i,1]
 }
 
+sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
 dataeu[,-c(1,z:length(colname))]
 
-sums
-gdp
 plot(sums, col="green", type="l")
 lines(gdp, col="red", type="l")
-lines(sums-gdp)
+plot(sums-gdp)
+
+
+#Check NIMA identity for country 2
+sums2=c()
+gdp2=c()
+for (i in 1:nrow(dataeu)) {
+  sums2[i]=sum(dataeu[i,-c(1:(z+1))])
+  gdp2[i]=dataeu[i,(z+1)]
+}
+
+sum(dataeu[1,-c(1:(z+1))])-dataeu[1,length(colname)]
+
+dataeu[i,(z+1)]
+
+dataeu[1,-c(1:(z+1),length(colname))]
+
+plot(sums2, col="green", type="l")
+lines(gdp2, col="red", type="l")
+plot(sums2-gdp2)
+
+
+
+
 
 plot(sums-gdp) #plot the residual to check if Y=C+G+I
 
