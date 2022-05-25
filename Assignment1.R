@@ -135,26 +135,25 @@ plot(sums-gdp) #plot the residual to check if Y=C+G+I
 ################
 #2#
 ################
-#take log of gdp
-library(BCDating)
+library(BCDating) #import
 
-log_gdp<-log(GDP)
-data_bc<-matrix(NA,length(GDP),4)
-data_bc[,1]<-log_gdp
+data_bc<-matrix(NA,length(GDP),4) #generate a matrix to fill with the log of the variables
+#taking logs
+data_bc[,1]<-log(GDP)
 data_bc[,2]<-log(IMPGS)
 data_bc[,3]<-log(GPDI)
 data_bc[,4]<-log(PCEC)
-t(data_bc)
-head(data_bc)
 
-#time_index_FRED<-index(GDP)
-#time_index_FRED<-convert_dates(time_index_FRED)
-#time_index_FRED<-as.yearqtr(time_index_FRED)
 for (count in 1:4) {
-   data_ts<-ts(data_bc[,count],start = c(1947, 1), frequency = 4)
-   bc_ES<-BBQ(data_ts,name= count)
+  #create a time series with the variable[count]
+  #setting the time index as year-quarter
+  data_ts<-ts(data_bc[,count],start = c(1947, 1), frequency = 4) 
+  #applied the BBQ method 
+  bc_ES<-BBQ(data_ts,name= count)
+  #plot the results
   summary(bc_ES)
+  plot(bc_ES,data_ts)
 }
 
 
-plot(bc_ES,data_ts)
+
