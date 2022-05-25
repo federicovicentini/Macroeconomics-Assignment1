@@ -45,8 +45,8 @@ for (i in 1:length(nipa)) {
 #eudataes=eudata[eudata$geo=="ES"]
 
 
-rm(list=ls())
-graphics.off()
+
+
 
 options(digits=4)
 
@@ -112,6 +112,9 @@ for (i in 1:length(nimacountries)) {
   }
 }
 
+dataeu[,z]=dataeu[,z]*(-1)
+dataeu[,length(colname)]=dataeu[,length(colname)]*(-1)
+
 head(newdata$time)
 
 dataeu<-xts(dataeu,rev(newdata$time))
@@ -119,9 +122,12 @@ dataeu<-xts(dataeu,rev(newdata$time))
 sums=c()
 gdp=c()
 for (i in 1:nrow(dataeu)) {
-  sums[i]=sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
+  sums[i]=sum(dataeu[i,-c(1,(z+1):length(colname))])
   gdp[i]=dataeu[i,1]
 }
+
+
+sum(dataeu[i,-c(1,z:length(colname))])-dataeu[i,z]
 
 dataeu[,-c(1,z:length(colname))]
 
@@ -129,10 +135,25 @@ sums
 gdp
 plot(sums, col="green", type="l")
 lines(gdp, col="red", type="l")
-lines(sums-gdp)
 
 plot(sums-gdp)
 
+sums2=c()
+gdp2=c()
+for (i in 1:nrow(dataeu)) {
+  sums2[i]=sum(dataeu[i,-c(1:(z+1))])
+  gdp2[i]=dataeu[i,(z+1)]
+}
+
+sum(dataeu[1,-c(1:(z+1))])-dataeu[1,length(colname)]
+
+dataeu[i,(z+1)]
+
+dataeu[1,-c(1:(z+1),length(colname))]
+
+plot(sums2, col="green", type="l")
+lines(gdp2, col="red", type="l")
+plot(sums2-gdp2)
 
 
 
