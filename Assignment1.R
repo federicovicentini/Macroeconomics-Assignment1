@@ -199,3 +199,7 @@ plot(usfilt$year,usfilt$labsh, ylim=c(0,1),
      ylab="Labour Share of Total Income",
      xlab="Year")
 
+
+
+plot(i)
+
