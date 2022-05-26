@@ -197,9 +197,20 @@ usfilt=uslabsh %>%
 plot(usfilt$year,usfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
-     xlab="Year")
+     xlab="Year", main="US")
+
+esfilt=eslabsh %>%
+  filter(year==c("1950","1960","1970"))
+plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
+     type="b",
+     ylab="Labour Share of Total Income",
+     xlab="Year", main="SPAIN")
 
 
-
-plot(i)
+frfilt=frlabsh %>%
+  filter(year==c("1950","1960","1970"))
+plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
+     type="b",
+     ylab="Labour Share of Total Income",
+     xlab="Year", main="FRANCE")
 
