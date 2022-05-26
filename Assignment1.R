@@ -176,14 +176,41 @@ rm(pwt10.0)
 
 
 
-uspenn<-namq_10_gdp %>% 
+uspenn<-penn %>% 
   filter(country == "United States of America")
+uslabsh=uspenn %>%
+  select(c(year,labsh))
+
+espenn<-penn %>% 
+  filter(country == "Spain")
+eslabsh=espenn %>%
+  select(c(year,labsh))
+
+frpenn<-penn %>% 
+  filter(country == "France")
+frlabsh=frpenn %>%
+  select(c(year,labsh))
 
 
+usfilt=uslabsh %>%
+  filter(year==c("1950","1960","1970"))
+plot(usfilt$year,usfilt$labsh, ylim=c(0,1),
+     type="b",
+     ylab="Labour Share of Total Income",
+     xlab="Year", main="US")
+
+esfilt=eslabsh %>%
+  filter(year==c("1950","1960","1970"))
+plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
+     type="b",
+     ylab="Labour Share of Total Income",
+     xlab="Year", main="SPAIN")
 
 
-
-
-
-
+frfilt=frlabsh %>%
+  filter(year==c("1950","1960","1970"))
+plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
+     type="b",
+     ylab="Labour Share of Total Income",
+     xlab="Year", main="FRANCE")
 
