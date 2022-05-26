@@ -132,9 +132,15 @@ plot(sums2-gdp2)
 
 plot(sums-gdp) #plot the residual to check if Y=C+G+I
 
-################
-#2#
-################
+
+
+
+
+#################
+#####POINT 2#####
+#################
+
+
 library(BCDating) #import
 
 data_bc<-matrix(NA,length(GDP),4) #generate a matrix to fill with the log of the variables
@@ -149,11 +155,32 @@ for (count in 1:4) {
   #setting the time index as year-quarter
   data_ts<-ts(data_bc[,count],start = c(1947, 1), frequency = 4) 
   #applied the BBQ method 
-  bc_ES<-BBQ(data_ts,name= count)
+  bc_US<-BBQ(data_ts,name= count)
   #plot the results
-  summary(bc_ES)
-  plot(bc_ES,data_ts)
+  summary(bc_US)
+  plot(bc_US,data_ts)
 }
+
+
+#################
+#####POINT 3#####
+#################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
