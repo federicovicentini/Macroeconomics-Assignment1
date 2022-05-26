@@ -225,16 +225,31 @@ plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
 #################
 
 
+favero=read.csv("MRW.csv",sep=";",dec = ",")
+favero$ID=NULL
+
+replica=data.frame(favero$YL85,favero$N6085,favero$IY)
+names(replica)=c("Ypc","PopGrowth","IonY")
+replica$Ypc=log(replica$Ypc)
+replica$PopGrowth=log(((replica$PopGrowth)/100)+0.05)
+replica$IonY=log((replica$IonY)/100)
+names(replica)[2]="ngdelta"
 
 
 
+reg=lm(Ypc ~ IonY + ngdelta, data=replica)
+library(stargazer)
+stargazer(reg, type = "text")
 
 
+t.test(lm(Ypc ~ IonY + ngdelta, data=replica))
 
+t.test(1:10, y = c(7:20)) 
 
-
-
-
+## Classical example: Student's sleep data
+plot(extra ~ group, data = sleep)
+## Traditional interface
+with(sleep, t.test(extra[group == 1], extra[group == 2]))
 
 
 
