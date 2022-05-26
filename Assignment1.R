@@ -214,3 +214,40 @@ plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
      ylab="Labour Share of Total Income",
      xlab="Year", main="FRANCE")
 
+
+
+
+
+
+
+#################
+#####POINT 4#####
+#################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
