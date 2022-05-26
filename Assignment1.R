@@ -238,9 +238,8 @@ colnames(table_10) <- char
 penn_years <- penn %>%
   filter((year >= 1959) & (year <= 2000) & (country %in% countries))
 penn_years <- select(penn_years, char)
-gdp_ratio <- gdp(penn_years[, 2])
 
-gdp <- function(x) {
+rate <- function(x) {
   x <- log(x)
   out <- c(1)
   for (count in 2:length(x)) {
@@ -248,8 +247,10 @@ gdp <- function(x) {
   }
   return(out)
 }
-gdp_ratio
-penn_years$gdp_ratio <- gdp(penn_years[, 2])
+
+penn_years$gdp_ratio <- rate(penn_years[, 2])
+penn_years$tfp_ratio <- rate(penn_years[, 3])
+
 #################
 ##### POINT 4#####
 #################
