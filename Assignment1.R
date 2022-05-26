@@ -273,14 +273,34 @@ library(stargazer)
 stargazer(reg, type = "text")
 
 
-t.test(lm(Ypc ~ IonY + ngdelta, data = replica))
 
 
 library(car)
 linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
 linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 
-## Classical example: Student's sleep data
-plot(extra ~ group, data = sleep)
-## Traditional interface
-with(sleep, t.test(extra[group == 1], extra[group == 2]))
+
+
+
+Boot(reg)
+
+
+
+
+library(boot)
+
+
+bs = function(formula, data, indices){
+  d = data[indices,]
+  fit=lm(formula, data=d)
+  return(coef(fit))
+}
+
+results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
+
+results
+
+replica$school=log((favero$SCHOOL)/100)
+
+reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
+stargazer(reg2, type = "text")
