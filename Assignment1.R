@@ -31,7 +31,7 @@ plot(((EXPGS-IMPGS+PCEC+GPDI+GCE)-GDP)^2)
 # GET THE OTHER TWO COUNTRIES FROM EUROSTAT DATABASE
 
 # Install packages
-packages <- c("tidyverse","rsdmx","eurostat","tbl2xts","tidyquant","BCDating")
+packages <- c("tidyverse","rsdmx","eurostat","tbl2xts","tidyquant","BCDating","pwt10","dplyr")
 new.packages <- packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 invisible(lapply(packages, library, character.only = TRUE))
@@ -168,12 +168,16 @@ for (count in 1:4) {
 #####POINT 3#####
 #################
 
+library(pwt10)
+library(dplyr)
+data("pwt10.0")
+penn=pwt10.0
+rm(pwt10.0)
 
 
 
-
-
-
+uspenn<-namq_10_gdp %>% 
+  filter(country == "United States of America")
 
 
 
