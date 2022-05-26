@@ -174,7 +174,7 @@ data("pwt10.0")
 penn=pwt10.0
 rm(pwt10.0)
 
-
+list=c("1950","1960","1970","1980","1990","2000","2010")
 
 uspenn<-penn %>% 
   filter(country == "United States of America")
@@ -193,14 +193,14 @@ frlabsh=frpenn %>%
 
 
 usfilt=uslabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(usfilt$year,usfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
      xlab="Year", main="US")
 
 esfilt=eslabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
@@ -208,12 +208,11 @@ plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
 
 
 frfilt=frlabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
      xlab="Year", main="FRANCE")
-
 
 
 
@@ -244,7 +243,10 @@ stargazer(reg, type = "text")
 
 t.test(lm(Ypc ~ IonY + ngdelta, data=replica))
 
-t.test(1:10, y = c(7:20)) 
+
+library(car)
+linearHypothesis(reg, c("IonY-ngdelta=0"),test="F")
+linearHypothesis(reg, c("IonY=0.5","ngdelta=-0.5"),test="F")
 
 ## Classical example: Student's sleep data
 plot(extra ~ group, data = sleep)
