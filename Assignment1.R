@@ -167,6 +167,7 @@ for (count in 1:4) {
 #################
 #####POINT 3#####
 #################
+rm(list = ls())
 
 library(pwt10)
 library(dplyr)
@@ -213,4 +214,24 @@ plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
      xlab="Year", main="FRANCE")
+
+table_10 <- matrix(NA, ncol = 6, nrow = 10)
+countries <- c("United States of America", "France", "Germany", "Japan",
+"Canada", "China", "Russian Federation", "Ukraine", "Netherlands", "United Kingdom")
+char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
+table_10[,1] <- countries
+colnames(table_10) <- char 
+
+
+
+
+
+penn_years <- penn %>% 
+  filter((year >= 1959) & (year <= 2000) & (country %in% countries ))
+
+
+
+filter(penn, (country %in% countries )
+
+
 
