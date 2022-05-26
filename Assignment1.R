@@ -233,7 +233,7 @@ countries <- c(
 char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
 table_10[, 1] <- countries
 colnames(table_10) <- char
-
+#
 
 penn_years <- penn %>%
   filter((year >= 1959) & (year <= 2000) & (country %in% countries))
