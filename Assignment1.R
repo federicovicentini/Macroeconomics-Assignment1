@@ -175,7 +175,7 @@ data("pwt10.0")
 penn=pwt10.0
 rm(pwt10.0)
 
-
+list=c("1950","1960","1970","1980","1990","2000","2010")
 
 uspenn<-penn %>% 
   filter(country == "United States of America")
@@ -194,14 +194,14 @@ frlabsh=frpenn %>%
 
 
 usfilt=uslabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(usfilt$year,usfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
      xlab="Year", main="US")
 
 esfilt=eslabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
@@ -209,7 +209,7 @@ plot(usfilt$year,esfilt$labsh, ylim=c(0,1),
 
 
 frfilt=frlabsh %>%
-  filter(year==c("1950","1960","1970"))
+  filter(year %in% list)
 plot(frfilt$year,frfilt$labsh, ylim=c(0,1),
      type="b",
      ylab="Labour Share of Total Income",
@@ -220,7 +220,7 @@ countries <- c("United States of America", "France", "Germany", "Japan",
 "Canada", "China", "Russian Federation", "Ukraine", "Netherlands", "United Kingdom")
 char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
 table_10[,1] <- countries
-colnames(table_10) <- char 
+colnames(table_10) <- char
 
 
 
@@ -232,6 +232,46 @@ penn_years <- penn %>%
 
 
 filter(penn, (country %in% countries )
+#################
+#####POINT 4#####
+#################
+
+
+favero=read.csv("MRW.csv",sep=";",dec = ",")
+favero$ID=NULL
+
+replica=data.frame(favero$YL85,favero$N6085,favero$IY)
+names(replica)=c("Ypc","PopGrowth","IonY")
+replica$Ypc=log(replica$Ypc)
+replica$PopGrowth=log(((replica$PopGrowth)/100)+0.05)
+replica$IonY=log((replica$IonY)/100)
+names(replica)[2]="ngdelta"
+
+
+
+reg=lm(Ypc ~ IonY + ngdelta, data=replica)
+library(stargazer)
+stargazer(reg, type = "text")
+
+
+t.test(lm(Ypc ~ IonY + ngdelta, data=replica))
+
+
+library(car)
+linearHypothesis(reg, c("IonY-ngdelta=0"),test="F")
+linearHypothesis(reg, c("IonY=0.5","ngdelta=-0.5"),test="F")
+
+## Classical example: Student's sleep data
+plot(extra ~ group, data = sleep)
+## Traditional interface
+with(sleep, t.test(extra[group == 1], extra[group == 2]))
+
+
+
+
+
+
+
 
 
 
