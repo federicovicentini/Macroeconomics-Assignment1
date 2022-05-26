@@ -224,32 +224,42 @@ plot(frfilt$year, frfilt$labsh,
   xlab = "Year", main = "FRANCE"
 )
 
-table_10 <- matrix(NA, ncol = 6, nrow = 10)
+
 countries <- c(
   "United States of America", "France", "Germany", "Japan",
   "Canada", "China",
   "Italy", "Netherlands", "United Kingdom", "Spain"
 )
 char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
-table_10[, 1] <- countries
-colnames(table_10) <- char
-#
 
 penn_years <- penn %>%
-  filter((year >= 1959) & (year <= 2000) & (country %in% countries))
+  filter((year >= 1960) & (year <= 2000) & (country %in% countries))
 penn_years <- select(penn_years, char)
 
-rate <- function(x) {
+ratio <- function(x) {
   x <- log(x)
-  out <- c(1)
+  out <- c(x[1])
   for (count in 2:length(x)) {
     out <- append(out, (x[count] - x[count - 1]) / x[count - 1])
   }
   return(out)
 }
 
-penn_years$gdp_ratio <- rate(penn_years[, 2])
-penn_years$tfp_ratio <- rate(penn_years[, 3])
+cap <- function(x) {
+  L <- x[, 2] * x[, 3]
+  k <- x[, 1] / L
+  alpha <- 0.3
+  out <- ratio(k) * alpha
+  return(out)
+}
+
+
+penn_years$gdp_ratio <- ratio(penn_years[, 2])
+penn_years$tfp_ratio <- ratio(penn_years[, 3])
+penn_years$cap_deepe <- cap(penn_years[, c("rnna", "avh", "emp")])
+penn_years$tfp_share <- penn_years$tfp_ratio / penn_years$gdp_ratio
+penn_years$cap_share <- penn_years$cap_deepe / penn_years$gdp_ratio
+View(penn_years[, c("country", "gdp_ratio", "tfp_ratio", "cap_deepe", "tfp_share", "cap_share")])
 
 #################
 ##### POINT 4#####
