@@ -257,7 +257,7 @@ char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
 # Select years between 1960 and 2000 with step of 5 years
 
 penn_years <- penn %>%
-  filter((year %in% seq(1960, 2000, 5)) & (country %in% countries))
+  filter((year %in% seq(1960, 2000, 40)) & (country %in% countries))
 penn_years <- select(penn_years, char)
 
 # Create function ratio to get the log ratio of the time series x
@@ -291,10 +291,13 @@ penn_years$tfp_ratio <- ratio(penn_years[, 3]) # add the tfp ratio
 penn_years$cap_deepe <- cap(penn_years[, c("rnna", "avh", "emp")]) # add capital dep
 penn_years$tfp_share <- penn_years$tfp_ratio / penn_years$gdp_ratio # add tfp share
 penn_years$cap_share <- penn_years$cap_deepe / penn_years$gdp_ratio # add cap share
+delete=seq(1,nrow(penn_years),by=2)
+penn_years=penn_years[-c(delete),]
 View(penn_years[, c(
   "country", "gdp_ratio", "tfp_ratio",
-  "cap_deepe", "tfp_share", "cap_share"
-)]) # view the results
+  "cap_deepe", "tfp_share", "cap_share")])
+
+
 
 
 #################
