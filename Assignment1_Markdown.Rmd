@@ -39,11 +39,10 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to get the data we need from the Fred database, using a for cycle and the function \textttt{getSymbols()}
+First of all, we need to get the data of USA we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
-# Get Data from Fred website
 nipa <- c("EXPGS", "IMPGS", "PCEC", "GDP", "GPDI", "GCE")
 for (i in 1:length(nipa)) {
   getSymbols(nipa[i], src = "FRED")
