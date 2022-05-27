@@ -253,8 +253,7 @@ linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
 linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 
 ```
-To sum up we can say that the results of our study are coherent with the results of the regression, infact th the results of the coefficients are equal to 0.5 i risultati dello studio sono coerenti con i risultati della regressione con 
-The second test the value of the two Beta's
+To sum up we can say that the results of our study are coherent with the results of the regression, infact they are not equal to 0.5 and they are not the opposite of the other
 
 At the end to provide a measure of uncertainty in parameters we use the Boot function from the package car
 ```{r p4.6}
