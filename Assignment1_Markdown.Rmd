@@ -286,3 +286,7 @@ stargazer(reg2, type = "text")
 
 =======
 >>>>>>> 6510429d8d06c2387f0dda922fa05e0e06febb49
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2eeb16f80fc78d7cbfadaefbdb0bac424c6e4617
