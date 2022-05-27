@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Federico Vicentini , Riccardo Dal Cero, Xhesjana Shametaj, Alice Pratesi" />
 
 
-<title>Macroeconomics - Assignment no.1</title>
+<title>Assignment1_Markdown.knit</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -362,14 +361,13 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Macroeconomics - Assignment no.1</h1>
-<h4 class="author">Federico Vicentini , Riccardo Dal Cero, Xhesjana
-Shametaj, Alice Pratesi</h4>
-<h4 class="date">27/5/2022</h4>
 
 </div>
 
 
+<p>title: “Macroeconomics - Assignment no.1” author: “Federico Vicentini
+, Riccardo Dal Cero, Xhesjana Shametaj, Alice Pratesi” date: “27/5/2022”
+output: html_document —</p>
 <div id="initial-operations" class="section level2">
 <h2>Initial Operations</h2>
 <pre class="r"><code># Clear the variables
@@ -510,7 +508,7 @@ library(ecb)</code></pre>
 <p>Secondly, we import the data of GDP from the Eurostat</p>
 <pre class="r"><code>namq_10_gdp &lt;- get_eurostat(&quot;namq_10_gdp&quot;,
   stringsAsFactors = FALSE)</code></pre>
-<pre><code>## Table namq_10_gdp cached at /var/folders/xn/t56hsgqd50jcv138pldh55b40000gn/T//RtmpZtIVqt/eurostat/namq_10_gdp_date_code_FF.rds</code></pre>
+<pre><code>## Table namq_10_gdp cached at /var/folders/xn/t56hsgqd50jcv138pldh55b40000gn/T//Rtmp4Edf9h/eurostat/namq_10_gdp_date_code_FF.rds</code></pre>
 <p>Subsequently we create new vectors for list of the two countries
 selected, for NIMA aggregates (Investment, Consumption, Import, Export,
 Public Spending)</p>
@@ -891,7 +889,7 @@ library(stargazer)</code></pre>
 to the book), IonY that is Investement on GDP corrrspond to 1.32 that is
 equal to the value of the book and at the end ngdelta (00.5 + n) is
 -2.01 that corresponf to the value of the table of the book.</p>
-<p>Now we can do hyphothesis testing with the two provided restrictions:
+<p>Now we can do hyphothesis testin with the two provided restrictions:
 1. Beta1 = - Beta2 2. Beta1 = 0.5 and Beta2 = -0.5</p>
 <pre class="r"><code>library(car)</code></pre>
 <pre><code>## Caricamento del pacchetto richiesto: carData</code></pre>
@@ -932,10 +930,9 @@ equal to the value of the book and at the end ngdelta (00.5 + n) is
 ## 2     72 26.743  2    17.444 23.482 1.41e-08 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>To sum up we can say that the results of our study are coherent with
-the results of the regression, infact th the results of the coefficients
-are equal to 0.5 i risultati dello studio sono coerenti con i risultati
-della regressione con The second test the value of the two Beta’s</p>
+<p>The first one is a simple F test with a significant p-value at the
+third level, which means that we reject the NULL hyphotesis and Beta1 is
+different to -Beta2. The second test the value of the two Beta’s</p>
 <p>At the end to provide a measure of uncertainty in parameters we use
 the Boot function from the package car</p>
 <pre class="r"><code>Boot(reg)</code></pre>
@@ -950,79 +947,30 @@ the Boot function from the package car</p>
 ## 
 ## 
 ## Bootstrap Statistics :
-##      original        bias    std. error
-## t1*  5.367698 -0.0161300080   1.5440289
-## t2*  1.325353 -0.0005923143   0.1687156
-## t3* -2.013390 -0.0044342091   0.5064502</code></pre>
+##      original       bias    std. error
+## t1*  5.367698 -0.027050485   1.4733214
+## t2*  1.325353 -0.003836625   0.1664135
+## t3* -2.013390 -0.007603449   0.4876443</code></pre>
 <pre class="r"><code>library(boot)</code></pre>
 <pre><code>## 
 ## Caricamento pacchetto: &#39;boot&#39;</code></pre>
 <pre><code>## Il seguente oggetto è mascherato da &#39;package:car&#39;:
 ## 
 ##     logit</code></pre>
-<p>But to implement the function Boot we need to create a Bootstrap
-function to get coefficients from the regression</p>
-<pre class="r"><code>bs = function(formula, data, indices){
-  d = data[indices,]
-  fit=lm(formula, data=d)
-  return(coef(fit))
-}</code></pre>
-<p>Finally we create var results with function boot on the regression,
-insert R=1000 that are the number of bootstrap replicates and print
-them</p>
-<pre class="r"><code>results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
-
-results</code></pre>
-<pre><code>## 
-## ORDINARY NONPARAMETRIC BOOTSTRAP
-## 
-## 
-## Call:
-## boot(data = replica, statistic = bs, R = 1000, formula = Ypc ~ 
-##     IonY + ngdelta)
-## 
-## 
-## Bootstrap Statistics :
-##      original       bias    std. error
-## t1*  5.367698 -0.059641921   1.4126763
-## t2*  1.325353 -0.007106235   0.1664397
-## t3* -2.013390 -0.017657326   0.4660929</code></pre>
-<p>The last step is include the variable “schooling” = “sh” that measure
-the percentage of the working age population that is in the secondary
-school. We did this to include the human capital investment in the form
-of education. We also replicate the augmented Solow model to print the
-new results</p>
-<pre class="r"><code>replica$school=log((favero$SCHOOL)/100)
-
-reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
-
-stargazer(reg2, type = &quot;text&quot;)</code></pre>
-<pre><code>## 
-## ===============================================
-##                         Dependent variable:    
-##                     ---------------------------
-##                                 Ypc            
-## -----------------------------------------------
-## IonY                         0.710***          
-##                               (0.150)          
-##                                                
-## ngdelta                      -1.497***         
-##                               (0.403)          
-##                                                
-## school                       0.729***          
-##                               (0.095)          
-##                                                
-## Constant                     7.807***          
-##                               (1.191)          
-##                                                
-## -----------------------------------------------
-## Observations                    75             
-## R2                             0.782           
-## Adjusted R2                    0.773           
-## Residual Std. Error       0.454 (df = 71)      
-## F Statistic           84.929*** (df = 3; 71)   
-## ===============================================
-## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>#Create bs function to get coefficients from the regression</p>
+<p>bs = function(formula, data, indices){ d = data[indices,]
+fit=lm(formula, data=d) return(coef(fit)) }</p>
+<p>#Create var results with function boot on the regression</p>
+<p>results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY +
+ngdelta)</p>
+<p>#Print the results</p>
+<p>results</p>
+<p>#Add schooling the replica database</p>
+<p>replica<span class="math inline">\(school=log((favero\)</span>SCHOOL)/100)</p>
+<p>#Replicate the augmented Solow model</p>
+<p>reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)</p>
+<p>#Print results using the Stargazer function</p>
+<p>stargazer(reg2, type = “text”)</p>
 </div>
 
 

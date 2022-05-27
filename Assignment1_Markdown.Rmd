@@ -1,10 +1,10 @@
 ---
+---
 title: "Macroeconomics - Assignment no.1"
 author: "Federico Vicentini , Riccardo Dal Cero, Xhesjana Shametaj, Alice Pratesi"
 date: "27/5/2022"
 output: html_document
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -273,22 +273,27 @@ bs = function(formula, data, indices){
 
 ```
 
-Finally we create var results with function boot on the regression, insert R=1000 that are the number of bootstrap replicates and print them 
-```{r p4.8}
+#Create var results with function boot on the regression
+
 results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
 
-results
-```
+#Print the results
 
-The last step is include the variable "schooling" = "sh" that measure the percentage of the working age population that is in the secondary school. We did this to include the human capital investment in the form of education.
-We also replicate the augmented Solow model to print the new results 
-```{r p4.9}
+results
+
+
+
+#Add schooling the replica database
+
 replica$school=log((favero$SCHOOL)/100)
+
+
+
+#Replicate the augmented Solow model
 
 reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
 
-stargazer(reg2, type = "text")
-```
+#Print results using the Stargazer function
 
-As you can see, the value of the variable SCOOL = 0.729 correspond to the value of the book. 
-The introduction of this variable improves the fit of the regression compared with the previous table. 
+stargazer(reg2, type = "text")
+
