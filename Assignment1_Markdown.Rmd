@@ -39,11 +39,10 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to get the data we need from the Fred database, using a for cycle and the function \textttt{getSymbols()}
+First of all, we need to get the data of USA we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
-# Get Data from Fred website
 nipa <- c("EXPGS", "IMPGS", "PCEC", "GDP", "GPDI", "GCE")
 for (i in 1:length(nipa)) {
   getSymbols(nipa[i], src = "FRED")
@@ -216,13 +215,15 @@ replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
 ```
 
-To replicate the results of Favero, we need to trasform our variables into logarithms 
-#Log-transform our variable of interest and add g+delta to n
+To replicate the results of Favero, we need to transform our variables into logarithms and we add g+delta to n.
+Since the equation is: log(Y/L) = a + (alfa/1+alfa)*ln(s) - (alfa/1-alfa)*ln(n+g+delta)
+Where "s" is the 
+```{r p4.3}
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
 names(replica)[2] <- "ngdelta"
-
+```
 
 #Replicate regression results
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
@@ -286,4 +287,7 @@ stargazer(reg2, type = "text")
 
 =======
 >>>>>>> 6510429d8d06c2387f0dda922fa05e0e06febb49
+<<<<<<< HEAD
+=======
 
+>>>>>>> 2eeb16f80fc78d7cbfadaefbdb0bac424c6e4617
