@@ -205,3 +205,88 @@ Fort the Investment (GDPI) there are a lot oh phases (41) and we can see that th
 At the end for the Consumption, we can see that between 2009 and 2019 there was a very long phase of Expansion 
 
 To sum up 
+
+
+## POINT 4
+
+First of all, we need to download the aggregate data from the website of the book "Applied Macroeconomics" by Favero and we delete the ID column since it is unuseless for our purpose
+```{r p4.1}
+favero <- read.csv("MRW.csv", sep = ";", dec = ",")
+
+favero$ID <- NULL
+```
+
+Now we can create a dataframe with only the variables we are interested in: YL85 that is the GDP per working age person il 1985, N6085 that is the rate of growth of population and IY that is investment on GDP (we also change the name)
+```{r p4.2}
+replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
+names(replica) <- c("Ypc", "PopGrowth", "IonY")
+```
+
+To replicate the results of Favero, we need to trasform our variables into logarithms 
+#Log-transform our variable of interest and add g+delta to n
+replica$Ypc <- log(replica$Ypc)
+replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
+replica$IonY <- log((replica$IonY) / 100)
+names(replica)[2] <- "ngdelta"
+
+
+#Replicate regression results
+reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
+
+#Print them using stargazer function
+library(stargazer)
+stargazer(reg, type = "text")
+
+
+
+#Do hypothesis testing with the two provided restrictions 
+#(which were respectively b1=-b2 ; b1=0.5 & b2=-0.5)
+
+library(car)
+linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
+linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
+
+
+
+#Perform bootstrapping using Boot from the package car
+
+Boot(reg)
+
+
+#Load library boot
+
+library(boot)
+
+#Create bs function to get coefficients from the regression
+
+bs = function(formula, data, indices){
+  d = data[indices,]
+  fit=lm(formula, data=d)
+  return(coef(fit))
+}
+
+#Create var results with function boot on the regression
+
+results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
+
+#Print the results
+
+results
+
+
+
+#Add schooling the replica database
+
+replica$school=log((favero$SCHOOL)/100)
+
+
+
+#Replicate the augmented Solow model
+
+reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
+
+#Print results using the Stargazer function
+
+stargazer(reg2, type = "text")
+
+
