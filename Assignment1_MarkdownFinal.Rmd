@@ -1,10 +1,10 @@
 ---
+---
 title: "Macroeconomics - Assignment no.1"
 author: "Federico Vicentini , Riccardo Dal Cero, Xhesjana Shametaj, Alice Pratesi"
 date: "27/5/2022"
 output: html_document
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -22,8 +22,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Install packages
 packages <- c("tidyverse", "rsdmx", "eurostat", "tbl2xts", 
-              "tidyquant", "BCDating", "pwt10", "dplyr",
-              "stargazer", "car")
+              "tidyquant", "BCDating", "pwt10", "dplyr")
 new.packages <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 invisible(lapply(packages, library, character.only = TRUE))
@@ -36,7 +35,7 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to download the USA data from the Fred database, using a for cycle and the function $\texttt{getSymbols()}$
+First of all, we need to get the data USA and we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
@@ -47,42 +46,42 @@ for (i in 1:length(nipa)) {
 
 ```
 
-After that we get residuals from NIPA equation (using function $\texttt{res}$) to prove that y = sum of its components. Finally, we plot them
+After that we get residuals from NIPA equation (using function "res") to proe that y = sum of their components and we plot them 
 ```{r p1.2}
 res=((EXPGS - IMPGS + PCEC + GPDI + GCE) - GDP)^2
 plot(res)
 ```
 
-We can see from the plot that residuals are overall pretty close to zero, thus probably they come from rounding errors. We conclude that the identity is checked.
-
-
-Now we check the same identity for other two countries from the Eurostat Database (we chose Spain and France). 
+Now we check the same identity of other two countries from Eurostat Database (we chose Spain and France). 
 Firstly we get Eurostat data listing
 ```{r p1.3}
 toc <- get_eurostat_toc()
 ```
 
-Then we load some other packages
+Then we install new packages and a very simple table with the function "kable"
 ```{r p1.4}
 library(knitr)
+kable(tail(toc))
+
 library(xts)
 library(ecb)
 ```
 
 
-```{r p1.4.1, message = FALSE, include=FALSE}
+```{r p1.4.1, message = FALSE}
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
 ```
 
-Secondly, we import GDP data from Eurostat 
-```{r p1.5, message=FALSE}
+Secondly, we import the data of GDP from the Eurostat 
+```{r p1.5}
+
 namq_10_gdp <- get_eurostat("namq_10_gdp",
   stringsAsFactors = FALSE)
 ```
 
 
-Subsequently we create new vectors. The first one is filled with the list of the two countries selected, the second with codes for NIMA aggregates (GDP, Investment, Consumption, Import, Export, Public Spending) 
+Subsequently we create new vectors for list of the two countries selected, for NIMA aggregates (Investment, Consumption, Import, Export, Public Spending) 
 ```{r p1.6}
 
 nimacountries <- c("ES", "FR")
@@ -91,8 +90,7 @@ nimaeu <- c("B1GQ", "P31_S14_S15", "P3_S13", "P51G", "P52", "P53", "P6", "P7")
 
 ```
 
-Obviously we need to create a matrix dataeu to fill with data from the two countries.
-
+Obviously we need to create a matrix dataeu to fill with data from the two countries and we transform the name for columns in the matrix dataeu. At the end we decide to set Z to partition columns (we obtain 8 partition)
 ```{r p1.7}
 
 colname <- c( "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
@@ -100,11 +98,12 @@ colname <- c( "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
 
 dataeu <- matrix(NA, 89, length(nimacountries) * length(nimaeu))
 colnames(dataeu) <- colname
+
+z <- length(colname) / length(nimacountries)
 ```
 
-Finally, we design a "for" cycle to fill dataeu with data from the two countries and we filter for our variables of interest in the period going from 2000 onward.
+Finally, we arrive to use the function "for" cycle to fill dataeu with data from the two countries and we filter for some variables
 ```{r p1.8}
-z <- length(colname) / length(nimacountries)
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata <- namq_10_gdp %>%
@@ -120,8 +119,7 @@ for (i in 1:length(nimacountries)) {
 }
 ```
 
-Before we check the NIMA identity for both countries, we first change Imports from positive to negative to simplify the equation and we convert dataeu to xts format
-
+Before we check the identity of NIMA for the countries, we first change import from + to - in both to simplify the eqaution and we convert dataeu to xts format
 ```{r p1.8.1}
 dataeu[, z] <- dataeu[, z] * (-1)
 dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
@@ -129,8 +127,8 @@ dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
 dataeu <- xts(dataeu, rev(newdata$time))
 ```
 
-Now we check the NIMA identity for Country 1 (Spain) in this way:
-- we create an empty vector to fill with the sums of the macro aggregates and another one to fill with GDP
+At the end we can finally check the NIMA identity for the Country 1 (Spain) in this way:
+- we create an empty vestors for sums of aggregates and fro GDP
 - We fill them with the data using a for cycle 
 - We print the value and plot the graphs of SUM and GDP
 
@@ -144,14 +142,15 @@ for (i in 1:nrow(dataeu)) {
   gdp[i] <- dataeu[i, 1]
 }
 
+sum(dataeu[i, -c(1, z:length(colname))]) - dataeu[i, z]
+dataeu[, -c(1, z:length(colname))]
+
 plot(sums, col = "green", type = "l")
-lines(gdp, col = "red", type = "b")
+lines(gdp, col = "red", type = "l")
 plot(sums - gdp)
 ```
 
-We can see from the first graph the two lines are overlapping, so the identity is checked. Furthermore, even when plotting residuals we see that they are exactly zero.
-
-To check the identity for the second country (France), the code is the same
+To check the identity for the second country (France), the code is almost the same
 ```{r p1.20}
 sums2 <- c()
 gdp2 <- c()
@@ -160,16 +159,21 @@ for (i in 1:nrow(dataeu)) {
   gdp2[i] <- dataeu[i, (z + 1)]
 }
 
+sum(dataeu[1, -c(1:(z + 1))]) - dataeu[1, length(colname)]
+
+dataeu[i, (z + 1)]
+
+dataeu[1, -c(1:(z + 1), length(colname))]
+
 plot(sums2, col = "green", type = "l")
-lines(gdp2, col = "red", type = "b")
+lines(gdp2, col = "red", type = "l")
 plot(sums2 - gdp2)
 ```
 
-Here the only difference is that the overlap is not perfect, but residuals are nonetheless pretty close to zero. Thus, the identity is checked even for Country 2.
 
 ## POINT 2
 
-First of all, we import the library BCDating and we generate a matrix to fill with the log of the variables. We decided to take the log level to transform data, as the paper suggested.
+First of all, we import the library BCDating and we generate a matrix to fill with the log of the variables (we takes the log level to transform data)
 
 ```{r p2}
 library(BCDating)
@@ -182,244 +186,107 @@ data_bc[, 3] <- log(GPDI)
 data_bc[, 4] <- log(PCEC)
 ```
 
-After that, we create a quarterly time series with a for cycle.
-
+After that, we create a time series (using for cycle) with the variables[count] and setting the time index as year-quarter
 ```{r p2.1}
 for (count in 1:4) {
   data_ts <- ts(data_bc[, count], start = c(1947, 1), frequency = 4)
 
 # Then we apply the BBQ methods (Bayesian Binning into Quantiles)  to obtain a well-calibrated confidence estimate and we plot the results 
   bc_US <- BBQ(data_ts, name = count)
+ 
   summary(bc_US)
   plot(bc_US, data_ts)
 }
 
 ```
 
-Let's analyze our results one by one:
+As you can see, for the first variable (GDP) we have long phases of Expansion (ex.202) and nowadays we are in a phase of Expansion.
+For the Imports we can see more phases and at the end of the 2020 started a new Expansion 
+Fort the Investment (GDPI) there are a lot oh phases (41) and we can see that the longer Expansions are between 1960-1966 and between 2009-2015.
+At the end for the Consumption, we can see that between 2009 and 2019 there was a very long phase of Expansion 
 
--The first variable (GDP) presents long phases of expansion coupled with shorter periods of recession. According to our results, we are now in a period of expansion which has started pretty recently, thus we do not expect a recession to hit soon.
-
--The second variable (Imports) presents long phases of expansion coupled with shorter periods of recession, but they are much more frequent than what we observed using GDP. According to our results, we are now in a period of expansion which has started pretty recently, but since expansions in imports are on average shorter, we cannot say for sure if the expansion is going to last.
-
--The third variable (Investments) presents the highest level of volatility, with frequent switches from expansion to recession, even in the span of a few quarters. This is probably due to the fact that investments are the first thing that is forfeited when a slowdown hits the economy. According to our results, we are now in a period of expansion which has started pretty recently, but since expansions in investments are so short, we cannot say for sure if the expansion is going to last.
-
--The fourth variable (Consumption) presents the longest phase of expansion of any of the other variables we used, coupled with really short and few periods of recession. According to our results, we are now in a period of expansion which has started pretty recently, so this indicator leads us to believe that a recession is not in sight, even if they became more frequent in the last 20 years.
-
-## POINT 3
-
-
-```{r p3}
-
-#################
-##### POINT 3#####
-#################
-
-# Load the necessary libraries
-
-library(pwt10)
-library(dplyr)
-
-# Download penn database from the web
-data("pwt10.0")
-penn <- pwt10.0
-rm(pwt10.0)
-
-# List of the years we are interested in (they are 10 years apart)
-list <- c("1950", "1960", "1970", "1980", "1990", "2000", "2010")
-
-
-# Filter Penn data for the USA
-uspenn <- penn %>%
-  filter(country == "United States of America")
-# Select only labour share of total income and the year
-uslabsh <- uspenn %>%
-  select(c(year, labsh))
-
-# Code is the same for the other 2 countries
-
-espenn <- penn %>%
-  filter(country == "Spain")
-eslabsh <- espenn %>%
-  select(c(year, labsh))
-
-frpenn <- penn %>%
-  filter(country == "France")
-frlabsh <- frpenn %>%
-  select(c(year, labsh))
-
-# Filter each time series only for the years we selected
-# then repeat for each country
-
-usfilt <- uslabsh %>%
-  filter(year %in% list)
-plot(usfilt$year, usfilt$labsh,
-  ylim = c(0, 1),
-  type = "b",
-  ylab = "Labour Share of Total Income",
-  xlab = "Year", main = "US"
-)
-
-esfilt <- eslabsh %>%
-  filter(year %in% list)
-plot(usfilt$year, esfilt$labsh,
-  ylim = c(0, 1),
-  type = "b",
-  ylab = "Labour Share of Total Income",
-  xlab = "Year", main = "SPAIN"
-)
-
-
-frfilt <- frlabsh %>%
-  filter(year %in% list)
-plot(frfilt$year, frfilt$labsh,
-  ylim = c(0, 1),
-  type = "b",
-  ylab = "Labour Share of Total Income",
-  xlab = "Year", main = "FRANCE"
-)
-
-# Create the list of countries we will use
-
-countries <- c(
-  "United States of America", "France", "Germany", "Japan",
-  "Canada", "Belgium",
-  "Italy", "Netherlands", "United Kingdom", "Spain"
-)
-char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
-
-# Select years between 1960 and 2000 with step of 5 years
-
-penn_years <- penn %>%
-  filter((year %in% seq(1960, 2000, 40)) & (country %in% countries))
-penn_years <- select(penn_years, char)
-
-# Create function ratio to get the log ratio of the time series x
-
-ratio <- function(x) {
-  x <- log(x)
-  out <- c()
-  n_years <- as.integer(length(x) / 10)
-  for (count in 1:length(x)) {
-    if (count %% n_years == 1) { # check if it is the first data point for that nation
-      out <- append(out, 0)
-    } else {
-      out <- append(out, (x[count] - x[count - 1]) / x[count - 1])
-      # compute the difference
-    }
-  }
-  return(out)
-}
-
-cap <- function(x) {
-  L <- x[, 2] * x[, 3] # avarage hour per employee * n of employees
-  k <- x[, 1] / L # capital per labour
-  alpha <- 0.3 # setting alpha
-  out <- ratio(k) * alpha # compute the capital deepe
-  return(out)
-}
-
-
-penn_years$gdp_ratio <- ratio(penn_years[, 2]) # add the gdp ratio
-penn_years$tfp_ratio <- ratio(penn_years[, 3]) # add the tfp ratio
-penn_years$cap_deepe <- cap(penn_years[, c("rnna", "avh", "emp")]) # add capital dep
-penn_years$tfp_share <- penn_years$tfp_ratio / penn_years$gdp_ratio # add tfp share
-penn_years$cap_share <- penn_years$cap_deepe / penn_years$gdp_ratio # add cap share
-delete=seq(1,nrow(penn_years),by=2)
-penn_years=penn_years[-c(delete),]
-print(penn_years[, c(
-  "country", "gdp_ratio", "tfp_ratio",
-  "cap_deepe", "tfp_share", "cap_share")])
-
-
-```
-
-Unfortunately we were not able to replicate correctly the results in the table presented in the paper and we didn't have the time to pinpoint the error. The results clearly do not make sense, but we thought that it was right to present them here to you. 
+To sum up 
 
 
 ## POINT 4
 
-First of all, we need to download the aggregate data from the website of the book "Applied Macroeconomics" by Favero and we delete the ID column since it is useless for our purposes
-
+First of all, we need to download the aggregate data from the website of the book "Applied Macroeconomics" by Favero and we delete the ID column since it is unuseless for our purpose
 ```{r p4.1}
 favero <- read.csv("MRW.csv", sep = ";", dec = ",")
 
 favero$ID <- NULL
 ```
 
-Now we can create a dataframe with only the variables we are interested in: 
--YL85, which is the GDP per working age population in 1985,
--N6085, which is the rate of growth of the labour force
--IY, which is the investment on GDP (we also change the name)
+Now we can create a dataframe with only the variables we are interested in: YL85 that is the GDP per working age person il 1985, N6085 that is the rate of growth of population and IY that is investment on GDP (we also change the name)
 ```{r p4.2}
 replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
 ```
 
-To replicate the results of Favero, we need to transform our variables into logarithms and we add g+delta (=0.05) to n.
-Since the equation is: log(Y/L) = a + (alfa/(1+alfa))*ln(s) - (alfa/(1-alfa))*ln(n+g+delta)
-Where "s" is the average share of real investment (so "IonY"), "Y/L" is the real GDP and "delta" is the rate of depreciation 
-```{r p4.3}
+To replicate the results of Favero, we need to transform our variables into logarithms
+#Log-transform our variable of interest and add g+delta to n
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
 names(replica)[2] <- "ngdelta"
-```
 
-Finally, we can replicate the regression results and print them using the stargazer function
-```{r p4.4}
+
+#Replicate regression results
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
 
+#Print them using stargazer function
 library(stargazer)
 stargazer(reg, type = "text")
-```
-
-As we can see from the text, the constant correspond to 5.36 (equal to the book), IonY that is Investement on GDP corresponds to 1.32 that is equal to the value of the book and at the end ngdelta (0.05 + n) is  -2.01 which is equal to the value in the table from the book.
 
 
-Now we can do hyphothesis testing with the two provided restrictions: 
-1. Beta1 = - Beta2
-2. Beta1 = 0.5 and Beta2 = -0.5
-```{r p4.5}
+
+#Do hypothesis testing with the two provided restrictions 
+#(which were respectively b1=-b2 ; b1=0.5 & b2=-0.5)
+
 library(car)
 linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
 linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 
-```
-To sum up we can say that the results of our study are coherent with the results of the regression, infact they are not equal to 0.5 and they are not the opposite of the other.
 
-At the end to provide a measure of uncertainty in parameters we use the Boot function from the package car
-```{r p4.6}
+
+#Perform bootstrapping using Boot from the package car
+
 Boot(reg)
-```
 
-But to implement the function boot we need to create a bs function to get coefficients from the regression
-```{r p4.7}
+
+#Load library boot
+
 library(boot)
+
+#Create bs function to get coefficients from the regression
+
 bs = function(formula, data, indices){
   d = data[indices,]
   fit=lm(formula, data=d)
   return(coef(fit))
 }
 
-```
+#Create var results with function boot on the regression
 
-Finally we use the function boot on the regression, insert R=1000 which is the number of bootstrap replicates and print them 
-```{r p4.8}
 results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
 
-results
-```
+#Print the results
 
-The last step is to include the variable "schooling" = "sh" that measures the percentage of the working age population that is in the secondary school. We did this to include the human capital investment in the form of education.
-We also replicate the augmented Solow model to print the new results 
-```{r p4.9}
+results
+
+
+
+#Add schooling the replica database
+
 replica$school=log((favero$SCHOOL)/100)
+
+
+
+#Replicate the augmented Solow model
 
 reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
 
-stargazer(reg2, type = "text")
-```
+#Print results using the Stargazer function
 
-As you can see, the value of the variable SCHOOL = 0.729 corresponds to the value of the book. 
-The introduction of this variable improves the fit of the regression compared with the previous table. 
+stargazer(reg2, type = "text")
+
