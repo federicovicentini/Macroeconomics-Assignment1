@@ -199,5 +199,9 @@ for (count in 1:4) {
 
 ```
 
-As you can see, for the fisrt variable (GDP) we have long phases of Expansion (ex.202) and nowadays we are in a phase of Expansion.
-For the Imports we can see more phases 
+As you can see, for the first variable (GDP) we have long phases of Expansion (ex.202) and nowadays we are in a phase of Expansion.
+For the Imports we can see more phases and at the end of the 2020 started a new Expansion 
+Fort the Investment (GDPI) there are a lot oh phases (41) and we can see that the longer Expansions are between 1960-1966 and between 2009-2015.
+At the end for the Consumption, we can see that between 2009 and 2019 there was a very long phase of Expansion 
+
+To sum up 
