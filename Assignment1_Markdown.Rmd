@@ -1,4 +1,5 @@
 ---
+---
 title: "Macroeconomics - Assignment no.1"
 author: "Federico Vicentini , Riccardo Dal Cero, Xhesjana Shametaj, Alice Pratesi"
 date: "27/5/2022"
@@ -12,11 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Initial Operations
 
 ```{r p0, message=FALSE}
-
-
-#################
-##### POINT 1####
-#################
 
 # Clear the variables
 rm(list = ls())
@@ -39,7 +35,7 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to get the data of USA we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
+First of all, we need to get the data USA and we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
@@ -48,51 +44,66 @@ for (i in 1:length(nipa)) {
   getSymbols(nipa[i], src = "FRED")
 }
 
-# Get residuals from NIPA equation and then plot them
+```
+
+After that we get residuals from NIPA equation (using function "res") to proe that y = sum of their components and we plot them 
+```{r p1.2}
 res=((EXPGS - IMPGS + PCEC + GPDI + GCE) - GDP)^2
 plot(res)
+```
 
-
-# GET THE OTHER TWO COUNTRIES FROM EUROSTAT DATABASE
-
-# Get Eurostat data listing
+Now we check the same identity of other two countries from Eurostat Database (we chose Spain and France). 
+Firstly we get Eurostat data listing
+```{r p1.3}
 toc <- get_eurostat_toc()
+```
 
-# Check the first items
+Then we install new packages and a very simple table with the function "kable"
+```{r p1.4}
 library(knitr)
 kable(tail(toc))
 
 library(xts)
 library(ecb)
+```
 
+
+```{r p1.4.1, message = FALSE}
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
+```
 
-# GDP download
+Secondly, we import the data of GDP from the Eurostat 
+```{r p1.5}
+
 namq_10_gdp <- get_eurostat("namq_10_gdp",
-  stringsAsFactors = FALSE
-)
+  stringsAsFactors = FALSE)
+```
 
-# Create vector with list of countries
+
+Subsequently we create new vectors for list of the two countries selected, for NIMA aggregates (Investment, Consumption, Import, Export, Public Spending) 
+```{r p1.6}
+
 nimacountries <- c("ES", "FR")
 
-# Create a vector with codes for NIMA aggregates
 nimaeu <- c("B1GQ", "P31_S14_S15", "P3_S13", "P51G", "P52", "P53", "P6", "P7")
 
-# Create a vector with names for columns in matrix dataeu
-colname <- c(
-  "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
-  "GDPb", "Cb", "Gb", "Ib", "invb", "saldob", "Xb", "IMb"
-)
+```
 
-# Create matrix dataeu to fill with data from the 2 countries
+Obviously we need to create a matrix dataeu to fill with data from the two countries and we transform the name for columns in the matrix dataeu. At the end we decide to set Z to partition columns (we obtain 8 partition)
+```{r p1.7}
+
+colname <- c( "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
+  "GDPb", "Cb", "Gb", "Ib", "invb", "saldob", "Xb", "IMb")
+
 dataeu <- matrix(NA, 89, length(nimacountries) * length(nimaeu))
 colnames(dataeu) <- colname
 
-# Set z to partition columns
 z <- length(colname) / length(nimacountries)
+```
 
-# For cycle to fill dataeu with data from the countries
+Finally, we arrive to use the function "for" cycle to fill dataeu with data from the two countries and we filter for some variables
+```{r p1.8}
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata <- namq_10_gdp %>%
@@ -106,38 +117,41 @@ for (i in 1:length(nimacountries)) {
     dataeu[, (s + (z * (i - 1)))] <- newdataxts
   }
 }
+```
 
-# Change Imports from positive to negative in both countries
+Before we check the identity of NIMA for the countries, we first change import from + to - in both to simplify the eqaution and we convert dataeu to xts format
+```{r p1.8.1}
 dataeu[, z] <- dataeu[, z] * (-1)
 dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
 
-# Convert dataeu to xts format
 dataeu <- xts(dataeu, rev(newdata$time))
+```
 
-# Check NIMA identity for country 1
+At the end we can finally check the NIMA identity for the Country 1 (Spain) in this way:
+- we create an empty vestors for sums of aggregates and fro GDP
+- We fill them with the data using a for cycle 
+- We print the value and plot the graphs of SUM and GDP
 
-#Create empty vectors for sums of aggregates and for gdp
+```{r p1.9}
+
 sums <- c()
 gdp <- c()
-#Fill them with the data using a for cycle
+
 for (i in 1:nrow(dataeu)) {
   sums[i] <- sum(dataeu[i, -c(1, (z + 1):length(colname))])
   gdp[i] <- dataeu[i, 1]
 }
 
-#Plot the values
 sum(dataeu[i, -c(1, z:length(colname))]) - dataeu[i, z]
 dataeu[, -c(1, z:length(colname))]
 
-#Plot the graphs
 plot(sums, col = "green", type = "l")
 lines(gdp, col = "red", type = "l")
 plot(sums - gdp)
+```
 
-
-# Check NIMA identity for country 2
-# Code is the same as before
-
+To check the identity for the second country (France), the code is almost the same
+```{r p1.20}
 sums2 <- c()
 gdp2 <- c()
 for (i in 1:nrow(dataeu)) {
@@ -154,44 +168,38 @@ dataeu[1, -c(1:(z + 1), length(colname))]
 plot(sums2, col = "green", type = "l")
 lines(gdp2, col = "red", type = "l")
 plot(sums2 - gdp2)
+```
 
 
+## POINT 2
 
+First of all, we import the library BCDating and we generate a matrix to fill with the log of the variables (we takes the log level to transform data)
 
-
-
-
-
-
-#################
-##### POINT 2####
-#################
-
-#Import the library
+```{r p2}
 library(BCDating)
 
-# Generate a matrix to fill with the log of the variables
 data_bc <- matrix(NA, length(GDP), 4)
 
-# Yaking logs
 data_bc[, 1] <- log(GDP)
 data_bc[, 2] <- log(IMPGS)
 data_bc[, 3] <- log(GPDI)
 data_bc[, 4] <- log(PCEC)
+```
 
+After that, we create a time series (using for cycle) with the variables[count] and setting the time index as year-quarter
+```{r p2.1}
 for (count in 1:4) {
-  # create a time series with the variable[count]
-  # setting the time index as year-quarter
   data_ts <- ts(data_bc[, count], start = c(1947, 1), frequency = 4)
-  # applied the BBQ method
+
+# Then we apply the BBQ methods (Bayesian Binning into Quantiles)  to obtain a well-calibrated confidence estimate and we plot the results 
   bc_US <- BBQ(data_ts, name = count)
-  # plot the results
+ 
   summary(bc_US)
   plot(bc_US, data_ts)
 }
+
 ```
 
-<<<<<<< HEAD
 As you can see, for the first variable (GDP) we have long phases of Expansion (ex.202) and nowadays we are in a phase of Expansion.
 For the Imports we can see more phases and at the end of the 2020 started a new Expansion 
 Fort the Investment (GDPI) there are a lot oh phases (41) and we can see that the longer Expansions are between 1960-1966 and between 2009-2015.
@@ -215,15 +223,13 @@ replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
 ```
 
-To replicate the results of Favero, we need to transform our variables into logarithms and we add g+delta to n.
-Since the equation is: log(Y/L) = a + (alfa/1+alfa)*ln(s) - (alfa/1-alfa)*ln(n+g+delta)
-Where "s" is the 
-```{r p4.3}
+To replicate the results of Favero, we need to transform our variables into logarithms
+#Log-transform our variable of interest and add g+delta to n
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
 names(replica)[2] <- "ngdelta"
-```
+
 
 #Replicate regression results
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
@@ -284,10 +290,3 @@ reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
 
 stargazer(reg2, type = "text")
 
-
-=======
->>>>>>> 6510429d8d06c2387f0dda922fa05e0e06febb49
-<<<<<<< HEAD
-=======
-
->>>>>>> 2eeb16f80fc78d7cbfadaefbdb0bac424c6e4617
