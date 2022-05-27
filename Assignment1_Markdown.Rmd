@@ -155,26 +155,20 @@ dataeu[1, -c(1:(z + 1), length(colname))]
 plot(sums2, col = "green", type = "l")
 lines(gdp2, col = "red", type = "l")
 plot(sums2 - gdp2)
+```
 
 
+## POINT 2
 
+```{r p2}
 
-
-
-
-
-
-#################
-##### POINT 2####
-#################
-
-#Import the library
+# First of all we import the library BCDating 
 library(BCDating)
 
-# Generate a matrix to fill with the log of the variables
+# We choose to using data in log level. We generate a matrix to fill with the log of the variables
 data_bc <- matrix(NA, length(GDP), 4)
 
-# Yaking logs
+# Taking logs to trasform data
 data_bc[, 1] <- log(GDP)
 data_bc[, 2] <- log(IMPGS)
 data_bc[, 3] <- log(GPDI)
@@ -190,5 +184,5 @@ for (count in 1:4) {
   summary(bc_US)
   plot(bc_US, data_ts)
 }
-```
 
+```
