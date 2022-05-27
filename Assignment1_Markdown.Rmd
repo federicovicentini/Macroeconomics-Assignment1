@@ -34,7 +34,7 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to get the data and we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
+First of all, we need to get the data USA and we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
@@ -67,7 +67,7 @@ library(ecb)
 ```
 
 
-```{r p1.4, message = FALSE}
+```{r p1.4.1, message = FALSE}
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
 ```
@@ -80,27 +80,29 @@ namq_10_gdp <- get_eurostat("namq_10_gdp",
 ```
 
 
-Subsequently we create new vectors for list of the two countries selected, for NIMA aggregates (Investment, Consumption, Import, Export, Public Spending) and to transform the name for columns in the matrix dataeu
+Subsequently we create new vectors for list of the two countries selected, for NIMA aggregates (Investment, Consumption, Import, Export, Public Spending) 
 ```{r p1.6}
 
 nimacountries <- c("ES", "FR")
 
 nimaeu <- c("B1GQ", "P31_S14_S15", "P3_S13", "P51G", "P52", "P53", "P6", "P7")
 
-# Create a vector with names for columns in matrix dataeu
-colname <- c(
-  "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
-  "GDPb", "Cb", "Gb", "Ib", "invb", "saldob", "Xb", "IMb"
-)
+```
 
-# Create matrix dataeu to fill with data from the 2 countries
+Obviously we need to create a matrix dataeu to fill with data from the two countries and we transform the name for columns in the matrix dataeu. At the end we decide to set Z to partition columns (we obtain 8 partition)
+```{r p1.7}
+
+colname <- c( "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
+  "GDPb", "Cb", "Gb", "Ib", "invb", "saldob", "Xb", "IMb")
+
 dataeu <- matrix(NA, 89, length(nimacountries) * length(nimaeu))
 colnames(dataeu) <- colname
 
-# Set z to partition columns
 z <- length(colname) / length(nimacountries)
+```
 
-# For cycle to fill dataeu with data from the countries
+Finally, we arrive to use the function "for" cycle to fill dataeu with data from the two countries and we filter for some variables
+```{r p1.8}
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
     newdata <- namq_10_gdp %>%
@@ -114,38 +116,41 @@ for (i in 1:length(nimacountries)) {
     dataeu[, (s + (z * (i - 1)))] <- newdataxts
   }
 }
+```
 
-# Change Imports from positive to negative in both countries
+Before we check the identity of NIMA for the countries, we first change import from + to - in both to simplify the eqaution and we convert dataeu to xts format
+```{r p1.8.1}
 dataeu[, z] <- dataeu[, z] * (-1)
 dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
 
-# Convert dataeu to xts format
 dataeu <- xts(dataeu, rev(newdata$time))
+```
 
-# Check NIMA identity for country 1
+At the end we can finally check the NIMA identity for the Country 1 (Spain) in this way:
+- we create an empty vestors for sums of aggregates and fro GDP
+- We fill them with the data using a for cycle 
+- We print the value and plot the graphs of SUM and GDP
 
-#Create empty vectors for sums of aggregates and for gdp
+```{r p1.9}
+
 sums <- c()
 gdp <- c()
-#Fill them with the data using a for cycle
+
 for (i in 1:nrow(dataeu)) {
   sums[i] <- sum(dataeu[i, -c(1, (z + 1):length(colname))])
   gdp[i] <- dataeu[i, 1]
 }
 
-#Plot the values
 sum(dataeu[i, -c(1, z:length(colname))]) - dataeu[i, z]
 dataeu[, -c(1, z:length(colname))]
 
-#Plot the graphs
 plot(sums, col = "green", type = "l")
 lines(gdp, col = "red", type = "l")
 plot(sums - gdp)
+```
 
-
-# Check NIMA identity for country 2
-# Code is the same as before
-
+To check the identity for the second country (France), the code is almost the same
+```{r p1.20}
 sums2 <- c()
 gdp2 <- c()
 for (i in 1:nrow(dataeu)) {
@@ -167,29 +172,32 @@ plot(sums2 - gdp2)
 
 ## POINT 2
 
-```{r p2}
+First of all, we import the library BCDating and we generate a matrix to fill with the log of the variables (we takes the log level to transform data)
 
-# First of all we import the library BCDating 
+```{r p2}
 library(BCDating)
 
-# We choose to using data in log level. We generate a matrix to fill with the log of the variables
 data_bc <- matrix(NA, length(GDP), 4)
 
-# Taking logs to trasform data
 data_bc[, 1] <- log(GDP)
 data_bc[, 2] <- log(IMPGS)
 data_bc[, 3] <- log(GPDI)
 data_bc[, 4] <- log(PCEC)
+```
 
+After that, we create a time series (using for cycle) with the variables[count] and setting the time index as year-quarter
+```{r p2.1}
 for (count in 1:4) {
-  # create a time series with the variable[count]
-  # setting the time index as year-quarter
   data_ts <- ts(data_bc[, count], start = c(1947, 1), frequency = 4)
-  # applied the BBQ method
+
+# Then we apply the BBQ methods (Bayesian Binning into Quantiles)  to obtain a well-calibrated confidence estimate and we plot the results 
   bc_US <- BBQ(data_ts, name = count)
-  # plot the results
+ 
   summary(bc_US)
   plot(bc_US, data_ts)
 }
 
 ```
+
+As you can see, for the fisrt variable (GDP) we have long phases of Expansion (ex.202) and nowadays we are in a phase of Expansion.
+For the Imports we can see more phases 
