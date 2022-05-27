@@ -13,11 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r p0, message=FALSE}
 
-
-#################
-##### POINT 1####
-#################
-
 # Clear the variables
 rm(list = ls())
 
@@ -39,45 +34,57 @@ library(eurostat)
 
 ## POINT 1
 
-First of all, we need to get the data we need from the Fred database, using a for cycle and the function \textttt{getSymbols()}
+First of all, we need to get the data and we needed from the Fred database, using a for cycle and the function \textttt{getSymbols()}
 
 ```{r p1}
 
-# Get Data from Fred website
 nipa <- c("EXPGS", "IMPGS", "PCEC", "GDP", "GPDI", "GCE")
 for (i in 1:length(nipa)) {
   getSymbols(nipa[i], src = "FRED")
 }
 
-# Get residuals from NIPA equation and then plot them
+```
+
+After that we get residuals from NIPA equation (using function "res") to proe that y = sum of their components and we plot them 
+```{r p1.2}
 res=((EXPGS - IMPGS + PCEC + GPDI + GCE) - GDP)^2
 plot(res)
+```
 
-
-# GET THE OTHER TWO COUNTRIES FROM EUROSTAT DATABASE
-
-# Get Eurostat data listing
+Now we check the same identity of other two countries from Eurostat Database (we chose Spain and France). 
+Firstly we get Eurostat data listing
+```{r p1.3}
 toc <- get_eurostat_toc()
+```
 
-# Check the first items
+Then we install new packages and a very simple table with the function "kable"
+```{r p1.4}
 library(knitr)
 kable(tail(toc))
 
 library(xts)
 library(ecb)
+```
 
+
+```{r p1.4, message = FALSE}
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
+```
 
-# GDP download
+Secondly, we import the data of GDP from the Eurostat 
+```{r p1.5}
+
 namq_10_gdp <- get_eurostat("namq_10_gdp",
-  stringsAsFactors = FALSE
-)
+  stringsAsFactors = FALSE)
+```
 
-# Create vector with list of countries
+
+Subsequently we create new vectors for list of the two countries selected, for NIMA aggregates (Investment, Consumption, Import, Export, Public Spending) and to transform the name for columns in the matrix dataeu
+```{r p1.6}
+
 nimacountries <- c("ES", "FR")
 
-# Create a vector with codes for NIMA aggregates
 nimaeu <- c("B1GQ", "P31_S14_S15", "P3_S13", "P51G", "P52", "P53", "P6", "P7")
 
 # Create a vector with names for columns in matrix dataeu
