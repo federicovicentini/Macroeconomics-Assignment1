@@ -244,7 +244,7 @@ stargazer(reg, type = "text")
 As we can see from the text, the constant correspond to 5.36 (equal to the book), IonY that is Investement on GDP corrrspond to 1.32 that is equal to the value of the book and at the end ngdelta (00.5 + n) is  -2.01 that corresponf to the value of the table of the book.
 
 
-Now we can do hyphothesis testin with the two provided restrictions: 
+Now we can do hyphothesis testing with the two provided restrictions: 
 1. Beta1 = - Beta2
 2. Beta1 = 0.5 and Beta2 = -0.5
 ```{r p4.5}
@@ -253,25 +253,25 @@ linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
 linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 
 ```
-The first one is a simple F test with a significant p-value at the third level, which means that we reject the NULL hyphotesis and Beta1 is different to -Beta2.
+To sum up we can say that the results of our study are coherent with the results of the regression, infact th the results of the coefficients are equal to 0.5 i risultati dello studio sono coerenti con i risultati della regressione con 
 The second test the value of the two Beta's
 
-#Perform bootstrapping using Boot from the package car
-
+At the end to provide a measure of uncertainty in parameters we use the Boot function from the package car
+```{r p4.6}
 Boot(reg)
 
-
-#Load library boot
-
 library(boot)
+```
 
-#Create bs function to get coefficients from the regression
-
+But to implement the function Boot we need to create a Bootstrap function to get coefficients from the regression
+```{r p4.7}
 bs = function(formula, data, indices){
   d = data[indices,]
   fit=lm(formula, data=d)
   return(coef(fit))
 }
+
+```
 
 #Create var results with function boot on the regression
 
