@@ -31,7 +31,8 @@ plot(((EXPGS - IMPGS + PCEC + GPDI + GCE) - GDP)^2)
 # GET THE OTHER TWO COUNTRIES FROM EUROSTAT DATABASE
 
 # Install packages
-packages <- c("tidyverse", "rsdmx", "eurostat", "tbl2xts", "tidyquant", "BCDating", "pwt10", "dplyr")
+packages <- c("tidyverse", "rsdmx", "eurostat", "tbl2xts", 
+              "tidyquant", "BCDating", "pwt10", "dplyr")
 new.packages <- packages[!(packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 invisible(lapply(packages, library, character.only = TRUE))
@@ -96,22 +97,29 @@ dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
 dataeu <- xts(dataeu, rev(newdata$time))
 
 # Check NIMA identity for country 1
+
+#Create empty vectors for sums of aggregates and for gdp
 sums <- c()
 gdp <- c()
+#Fill them with the data using a for cycle
 for (i in 1:nrow(dataeu)) {
   sums[i] <- sum(dataeu[i, -c(1, (z + 1):length(colname))])
   gdp[i] <- dataeu[i, 1]
 }
 
+#Plot the values
 sum(dataeu[i, -c(1, z:length(colname))]) - dataeu[i, z]
 dataeu[, -c(1, z:length(colname))]
 
+#Plot the graphs
 plot(sums, col = "green", type = "l")
 lines(gdp, col = "red", type = "l")
 plot(sums - gdp)
 
 
 # Check NIMA identity for country 2
+# Code is the same as before
+
 sums2 <- c()
 gdp2 <- c()
 for (i in 1:nrow(dataeu)) {
@@ -133,21 +141,21 @@ plot(sums2 - gdp2)
 
 
 
-plot(sums - gdp) # plot the residual to check if Y=C+G+I
-
 
 
 
 
 #################
-##### POINT 2#####
+##### POINT 2####
 #################
 
+#Import the library
+library(BCDating)
 
-library(BCDating) # import
+# Generate a matrix to fill with the log of the variables
+data_bc <- matrix(NA, length(GDP), 4)
 
-data_bc <- matrix(NA, length(GDP), 4) # generate a matrix to fill with the log of the variables
-# taking logs
+# Yaking logs
 data_bc[, 1] <- log(GDP)
 data_bc[, 2] <- log(IMPGS)
 data_bc[, 3] <- log(GPDI)
@@ -170,20 +178,29 @@ for (count in 1:4) {
 #################
 ##### POINT 3#####
 #################
-rm(list = ls())
+
+#Load the necessary libraries
 
 library(pwt10)
 library(dplyr)
+
+#Download penn database from the web
 data("pwt10.0")
 penn <- pwt10.0
 rm(pwt10.0)
 
+#List of the years we are interested in (they are 10 years apart)
 list <- c("1950", "1960", "1970", "1980", "1990", "2000", "2010")
 
+
+#Filter Penn data for the USA
 uspenn <- penn %>%
   filter(country == "United States of America")
+#Select only labour share of total income and the year
 uslabsh <- uspenn %>%
   select(c(year, labsh))
+
+#Code is the same for the other 2 countries
 
 espenn <- penn %>%
   filter(country == "Spain")
@@ -195,6 +212,8 @@ frpenn <- penn %>%
 frlabsh <- frpenn %>%
   select(c(year, labsh))
 
+#Filter each time series only for the years we selected
+#then repeat for each country
 
 usfilt <- uslabsh %>%
   filter(year %in% list)
@@ -224,6 +243,7 @@ plot(frfilt$year, frfilt$labsh,
   xlab = "Year", main = "FRANCE"
 )
 
+#Create the list of countries we will use
 
 countries <- c(
   "United States of America", "France", "Germany", "Japan",
@@ -232,9 +252,13 @@ countries <- c(
 )
 char <- c("country", "rgdpna", "rtfpna", "rnna", "avh", "emp")
 
+#Select years between 1960 and 2000
+
 penn_years <- penn %>%
   filter((year >= 1960) & (year <= 2000) & (country %in% countries))
 penn_years <- select(penn_years, char)
+
+#Create function ration to...
 
 ratio <- function(x) {
   x <- log(x)
@@ -259,31 +283,42 @@ penn_years$tfp_ratio <- ratio(penn_years[, 3])
 penn_years$cap_deepe <- cap(penn_years[, c("rnna", "avh", "emp")])
 penn_years$tfp_share <- penn_years$tfp_ratio / penn_years$gdp_ratio
 penn_years$cap_share <- penn_years$cap_deepe / penn_years$gdp_ratio
-View(penn_years[, c("country", "gdp_ratio", "tfp_ratio", "cap_deepe", "tfp_share", "cap_share")])
+View(penn_years[, c("country", "gdp_ratio", "tfp_ratio", 
+                    "cap_deepe", "tfp_share", "cap_share")])
 
 #################
 ##### POINT 4#####
 #################
 
 
+#Download database from Favero's book
 favero <- read.csv("MRW.csv", sep = ";", dec = ",")
+#Delete the ID column (it is useless for our purposes)
 favero$ID <- NULL
 
+
+#Create a dataframe with only the variables we are interested in
 replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
+
+#Log-transform our variable of interest and add g+delta to n
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
 names(replica)[2] <- "ngdelta"
 
 
-
+#Replicate regression results
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
+
+#Print them using stargazer function
 library(stargazer)
 stargazer(reg, type = "text")
 
 
 
+#Do hypothesis testing with the two provided restrictions 
+#(which were respectively b1=-b2 ; b1=0.5 & b2=-0.5)
 
 library(car)
 linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
@@ -291,14 +326,16 @@ linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 
 
 
+#Perform bootstrapping using Boot from the package car
 
 Boot(reg)
 
 
-
+#Load library boot
 
 library(boot)
 
+#Create bs function to get coefficients from the regression
 
 bs = function(formula, data, indices){
   d = data[indices,]
@@ -306,11 +343,39 @@ bs = function(formula, data, indices){
   return(coef(fit))
 }
 
+#Create var results with function boot on the regression
+
 results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
+
+#Print the results
 
 results
 
+
+
+#Add schooling the replica database
+
 replica$school=log((favero$SCHOOL)/100)
 
+
+
+#Replicate the augmented Solow model
+
 reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
+
+#Print results using the Stargazer function
+
 stargazer(reg2, type = "text")
+
+
+
+
+
+
+
+
+
+
+
+
+
