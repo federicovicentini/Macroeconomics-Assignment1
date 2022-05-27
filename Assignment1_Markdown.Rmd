@@ -216,13 +216,15 @@ replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
 ```
 
-To replicate the results of Favero, we need to trasform our variables into logarithms 
-#Log-transform our variable of interest and add g+delta to n
+To replicate the results of Favero, we need to transform our variables into logarithms and we add g+delta to n.
+Since the equation is: log(Y/L) = a + (alfa/1+alfa)*ln(s) - (alfa/1-alfa)*ln(n+g+delta)
+Where "s" is the 
+```{r p4.3}
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
 names(replica)[2] <- "ngdelta"
-
+```
 
 #Replicate regression results
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
