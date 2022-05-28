@@ -6,13 +6,13 @@ output: html_document
 ---
 
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, dev='svg'}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Initial Operations
 
-```{r p0, message=FALSE}
+```{r p0, message=FALSE, dev='svg'}
 
 # Clear the variables
 rm(list = ls())
@@ -38,7 +38,7 @@ library(eurostat)
 
 First of all, we need to download the USA data from the Fred database, using a for cycle and the function $\texttt{getSymbols()}$
 
-```{r p1}
+```{r p1, dev='svg'}
 
 nipa <- c("EXPGS", "IMPGS", "PCEC", "GDP", "GPDI", "GCE")
 for (i in 1:length(nipa)) {
@@ -48,7 +48,7 @@ for (i in 1:length(nipa)) {
 ```
 
 After that we get residuals from NIPA equation (using function $\texttt{res}$) to prove that y = sum of its components. Finally, we plot them
-```{r p1.2}
+```{r p1.2, dev='svg'}
 res=((EXPGS - IMPGS + PCEC + GPDI + GCE) - GDP)^2
 plot(res)
 ```
@@ -58,32 +58,32 @@ We can see from the plot that residuals are overall pretty close to zero, thus p
 
 Now we check the same identity for other two countries from the Eurostat Database (we chose Spain and France). 
 Firstly we get Eurostat data listing
-```{r p1.3}
+```{r p1.3, dev='svg'}
 toc <- get_eurostat_toc()
 ```
 
 Then we load some other packages
-```{r p1.4}
+```{r p1.4, dev='svg'}
 library(knitr)
 library(xts)
 library(ecb)
 ```
 
 
-```{r p1.4.1, message = FALSE, include=FALSE}
+```{r p1.4.1, message = FALSE, include=FALSE, dev='svg'}
 # For the original data, see
 # http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsdtr210
 ```
 
 Secondly, we import GDP data from Eurostat 
-```{r p1.5, message=FALSE}
+```{r p1.5, message=FALSE, dev='svg'}
 namq_10_gdp <- get_eurostat("namq_10_gdp",
   stringsAsFactors = FALSE)
 ```
 
 
 Subsequently we create new vectors. The first one is filled with the list of the two countries selected, the second with codes for NIMA aggregates (GDP, Investment, Consumption, Import, Export, Public Spending) 
-```{r p1.6}
+```{r p1.6, dev='svg'}
 
 nimacountries <- c("ES", "FR")
 
@@ -93,7 +93,7 @@ nimaeu <- c("B1GQ", "P31_S14_S15", "P3_S13", "P51G", "P52", "P53", "P6", "P7")
 
 Obviously we need to create a matrix dataeu to fill with data from the two countries.
 
-```{r p1.7}
+```{r p1.7, dev='svg'}
 
 colname <- c( "GDP", "C", "G", "I", "inv", "saldo", "X", "IM",
   "GDPb", "Cb", "Gb", "Ib", "invb", "saldob", "Xb", "IMb")
@@ -103,7 +103,7 @@ colnames(dataeu) <- colname
 ```
 
 Finally, we design a "for" cycle to fill dataeu with data from the two countries and we filter for our variables of interest in the period going from 2000 onward.
-```{r p1.8}
+```{r p1.8, dev='svg'}
 z <- length(colname) / length(nimacountries)
 for (i in 1:length(nimacountries)) {
   for (s in 1:length(nimaeu)) {
@@ -122,7 +122,7 @@ for (i in 1:length(nimacountries)) {
 
 Before we check the NIMA identity for both countries, we first change Imports from positive to negative to simplify the equation and we convert dataeu to xts format
 
-```{r p1.8.1}
+```{r p1.8.1, dev='svg'}
 dataeu[, z] <- dataeu[, z] * (-1)
 dataeu[, length(colname)] <- dataeu[, length(colname)] * (-1)
 
@@ -134,7 +134,7 @@ Now we check the NIMA identity for Country 1 (Spain) in this way:
 - We fill them with the data using a for cycle 
 - We print the value and plot the graphs of SUM and GDP
 
-```{r p1.9}
+```{r p1.9, dev='svg'}
 
 sums <- c()
 gdp <- c()
@@ -152,7 +152,7 @@ plot(sums - gdp)
 We can see from the first graph the two lines are overlapping, so the identity is checked. Furthermore, even when plotting residuals we see that they are exactly zero.
 
 To check the identity for the second country (France), the code is the same
-```{r p1.20}
+```{r p1.20, dev='svg'}
 sums2 <- c()
 gdp2 <- c()
 for (i in 1:nrow(dataeu)) {
@@ -171,7 +171,7 @@ Here the only difference is that the overlap is not perfect, but residuals are n
 
 First of all, we import the library BCDating and we generate a matrix to fill with the log of the variables. We decided to take the log level to transform data, as the paper suggested.
 
-```{r p2}
+```{r p2, dev='svg'}
 library(BCDating)
 
 data_bc <- matrix(NA, length(GDP), 4)
@@ -184,7 +184,7 @@ data_bc[, 4] <- log(PCEC)
 
 After that, we create a quarterly time series with a for cycle.
 
-```{r p2.1}
+```{r p2.1, dev='svg'}
 for (count in 1:4) {
   data_ts <- ts(data_bc[, count], start = c(1947, 1), frequency = 4)
 
@@ -209,7 +209,7 @@ Let's analyze our results one by one:
 ## POINT 3
 
 
-```{r p3}
+```{r p3, dev='svg'}
 
 #################
 ##### POINT 3#####
@@ -341,7 +341,7 @@ Unfortunately we were not able to replicate correctly the results in the table p
 
 First of all, we need to download the aggregate data from the website of the book "Applied Macroeconomics" by Favero and we delete the ID column since it is useless for our purposes
 
-```{r p4.1}
+```{r p4.1, dev='svg'}
 favero <- read.csv("MRW.csv", sep = ";", dec = ",")
 
 favero$ID <- NULL
@@ -351,7 +351,7 @@ Now we can create a dataframe with only the variables we are interested in:
 -YL85, which is the GDP per working age population in 1985,
 -N6085, which is the rate of growth of the labour force
 -IY, which is the investment on GDP (we also change the name)
-```{r p4.2}
+```{r p4.2, dev='svg'}
 replica <- data.frame(favero$YL85, favero$N6085, favero$IY)
 names(replica) <- c("Ypc", "PopGrowth", "IonY")
 ```
@@ -359,7 +359,7 @@ names(replica) <- c("Ypc", "PopGrowth", "IonY")
 To replicate the results of Favero, we need to transform our variables into logarithms and we add g+delta (=0.05) to n.
 Since the equation is: log(Y/L) = a + (alfa/(1+alfa))*ln(s) - (alfa/(1-alfa))*ln(n+g+delta)
 Where "s" is the average share of real investment (so "IonY"), "Y/L" is the real GDP and "delta" is the rate of depreciation 
-```{r p4.3}
+```{r p4.3, dev='svg'}
 replica$Ypc <- log(replica$Ypc)
 replica$PopGrowth <- log(((replica$PopGrowth) / 100) + 0.05)
 replica$IonY <- log((replica$IonY) / 100)
@@ -367,7 +367,7 @@ names(replica)[2] <- "ngdelta"
 ```
 
 Finally, we can replicate the regression results and print them using the stargazer function
-```{r p4.4}
+```{r p4.4, dev='svg'}
 reg <- lm(Ypc ~ IonY + ngdelta, data = replica)
 
 library(stargazer)
@@ -380,7 +380,7 @@ As we can see from the text, the constant correspond to 5.36 (equal to the book)
 Now we can do hyphothesis testing with the two provided restrictions: 
 1. Beta1 = - Beta2
 2. Beta1 = 0.5 and Beta2 = -0.5
-```{r p4.5}
+```{r p4.5, dev='svg'}
 library(car)
 linearHypothesis(reg, c("IonY-ngdelta=0"), test = "F")
 linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
@@ -389,12 +389,12 @@ linearHypothesis(reg, c("IonY=0.5", "ngdelta=-0.5"), test = "F")
 To sum up we can say that the results of our study are coherent with the results of the regression, infact they are not equal to 0.5 and they are not the opposite of the other.
 
 At the end to provide a measure of uncertainty in parameters we use the Boot function from the package car
-```{r p4.6}
+```{r p4.6, dev='svg'}
 Boot(reg)
 ```
 
 But to implement the function boot we need to create a bs function to get coefficients from the regression
-```{r p4.7}
+```{r p4.7, dev='svg'}
 library(boot)
 bs = function(formula, data, indices){
   d = data[indices,]
@@ -405,7 +405,7 @@ bs = function(formula, data, indices){
 ```
 
 Finally we use the function boot on the regression, insert R=1000 which is the number of bootstrap replicates and print them 
-```{r p4.8}
+```{r p4.8, dev='svg'}
 results = boot(replica, statistic=bs, R=1000, formula= Ypc ~ IonY + ngdelta)
 
 results
@@ -413,7 +413,7 @@ results
 
 The last step is to include the variable "schooling" = "sh" that measures the percentage of the working age population that is in the secondary school. We did this to include the human capital investment in the form of education.
 We also replicate the augmented Solow model to print the new results 
-```{r p4.9}
+```{r p4.9, dev='svg'}
 replica$school=log((favero$SCHOOL)/100)
 
 reg2 = lm(Ypc ~ IonY + ngdelta + school, data = replica)
