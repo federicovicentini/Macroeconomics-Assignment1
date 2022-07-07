@@ -4,7 +4,7 @@
 # Macroeconomics - Assignment no.1
 
 #################
-##### POINT 1#####
+##### POINT 1####
 #################
 
 # Clear the variables
